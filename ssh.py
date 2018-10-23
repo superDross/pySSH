@@ -6,6 +6,15 @@ import paramiko
 
 
 class SSH(object):
+    ''' Connection to a remote host.
+
+    Attributes:
+        hostname (str): name of host to connect to.
+        username (str): name of user to connect to host as.
+        key (str): path to ssh key.
+        port (int): host port to connect to.
+    '''
+
     def __init__(self, hostname, username, key, port=22):
         self.hostname = hostname
         self.username = username
@@ -14,12 +23,22 @@ class SSH(object):
         self.sshcon = None
 
     def execute(self, commands):
-        ''' Connect to host and execute the given command.'''
+        ''' Connect to host and execute the given command.
+
+        Args:
+            commands (str | list): semicolon seperated bash commands.
+        '''
         self._connect()
         self._execute_commands(commands)
 
     def transfer_and_execute(self, script, destination, delete=False):
-        ''' Transfer a script and execute it on host.'''
+        ''' Transfer a script and execute it on host.
+
+        Args:
+            script (str): local script path to transfer to host.
+            destination (str): where to copy the script on host.
+            delte (bool): whether to delete the script after usage.
+        '''
         self._connect()
         self.transfer(script, destination)
         command = 'chmod +x ' + destination + ';' + destination
@@ -42,7 +61,12 @@ class SSH(object):
                                 password=password, port=self.port)
 
     def transfer(self, script, destination):
-        ''' Transfer a file from local to host.'''
+        ''' Transfer a file from local to host.
+
+        Args:
+            script (str): local script path to transfer to host.
+            destination (str): where to copy the script on host.
+        '''
         print('Transferring '+script + ' to ' + destination)
         sftp = self.sshcon.open_sftp()
         try:
@@ -52,7 +76,11 @@ class SSH(object):
                           ' is a directory but must be a path to a file')
 
     def _execute_commands(self, commands):
-        ''' Execute commands on host.'''
+        ''' Execute commands on host.
+
+        Args:
+            commands (str|list): semicolon seperated bash commands.
+        '''
         if isinstance(commands, list):
             commands = ' '.join(commands)
         stdin, stdout, stderr = self.sshcon.exec_command(commands)
